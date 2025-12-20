@@ -1,28 +1,5 @@
 # AWS Docusaurus - Claude Context
 
-## Migration Notice (v1.1.5)
-
-**Breaking Change:** This plugin was renamed from `aws-docusaurus` to `yaccp-aws-docusaurus`.
-
-### For Users Upgrading from v1.1.0 or Earlier
-
-1. Update `enabledPlugins` in `.claude/settings.local.json`:
-   ```json
-   "enabledPlugins": {
-     "yaccp-aws-docusaurus@yaccp": true
-   }
-   ```
-
-2. Use new command format:
-   - `/yaccp-aws-docusaurus:init` (was `/aws-docusaurus init`)
-   - `/yaccp-aws-docusaurus:infra` (was `/aws-docusaurus infra`)
-   - `/yaccp-aws-docusaurus:deploy` (was `/aws-docusaurus deploy`)
-   - `/yaccp-aws-docusaurus:status` (was `/aws-docusaurus status`)
-
-See [CHANGELOG.md](CHANGELOG.md#from-110-to-115) for full migration guide.
-
----
-
 ## Plugin Overview
 
 AWS Docusaurus automates static site deployment to AWS. It creates and manages:
