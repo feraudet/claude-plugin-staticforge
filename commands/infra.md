@@ -126,7 +126,7 @@ S3 Bucket:       ${SITE_NAME}
 CloudFront ID:   ${CF_ID}
 Site URL:        https://${DOMAIN}
 
-Next step: /aws-docusaurus:deploy
+Next step: /yaccp-aws-docusaurus:deploy
 ```
 
 ## Architecture

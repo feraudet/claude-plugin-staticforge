@@ -140,5 +140,5 @@ Last Invalidations:
 Use AskUserQuestion:
 "What would you like to do next?"
 - "Invalidate CloudFront cache"
-- "Redeploy site (/aws-docusaurus:deploy)"
+- "Redeploy site (/yaccp-aws-docusaurus:deploy)"
 - "Nothing, done"

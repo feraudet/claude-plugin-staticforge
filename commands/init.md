@@ -97,8 +97,8 @@ Configuration saved to .claude/yaccp/aws-docusaurus/config.json
 Next steps:
 1. cd ${PROJECT_NAME}
 2. npm start (preview locally)
-3. /aws-docusaurus:infra (create AWS infrastructure)
-4. /aws-docusaurus:deploy (deploy)
+3. /yaccp-aws-docusaurus:infra (create AWS infrastructure)
+4. /yaccp-aws-docusaurus:deploy (deploy)
 ```
 
 ## Project Structure

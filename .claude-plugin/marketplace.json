@@ -1,20 +1,20 @@
 {
-  "name": "aws-docusaurus",
+  "name": "yaccp-aws-docusaurus",
   "description": "Deploy static sites to AWS with zero configuration headaches",
   "owner": {
     "name": "Yaccp",
     "url": "https://github.com/yaccp"
   },
   "metadata": {
-    "version": "1.1.4",
+    "version": "1.1.5",
     "description": "Complete AWS deployment solutions for static sites"
   },
   "plugins": [
     {
-      "name": "aws-docusaurus",
+      "name": "yaccp-aws-docusaurus",
       "source": ".",
       "description": "Deploy static sites to AWS with S3, CloudFront, ACM, Route53, and optional Lambda@Edge Basic Auth",
-      "version": "1.1.4",
+      "version": "1.1.5",
       "author": {
         "name": "Yaccp"
       },

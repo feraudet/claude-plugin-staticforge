@@ -139,5 +139,5 @@ Site URL:        https://${DOMAIN}
 Files uploaded:  ${FILE_COUNT}
 Invalidation:    ${INVALIDATION_ID}
 
-Check status: /aws-docusaurus:status
+Check status: /yaccp-aws-docusaurus:status
 ```
