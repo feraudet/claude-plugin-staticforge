@@ -175,30 +175,7 @@ sequenceDiagram
 
 ## Security Architecture
 
-```mermaid
-flowchart TB
-    subgraph L1["🛡️ Layer 1: DDoS Protection"]
-        Shield["AWS Shield"]
-    end
-
-    subgraph L2["🔐 Layer 2: Transport Security"]
-        TLS["CloudFront HTTPS<br/>TLS 1.2+"]
-    end
-
-    subgraph L3["🔑 Layer 3: Authentication"]
-        Auth["Lambda@Edge<br/>Basic Auth"]
-    end
-
-    subgraph L4["📋 Layer 4: Access Control"]
-        OAI["S3 Bucket Policy<br/>OAI Only"]
-    end
-
-    subgraph L5["🚫 Layer 5: Public Access Block"]
-        Block["S3 Block Public Access<br/>All options enabled"]
-    end
-
-    L1 --> L2 --> L3 --> L4 --> L5
-```
+![Security Layers](images/security-layers.svg)
 
 ## Cache Architecture
 

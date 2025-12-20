@@ -62,56 +62,11 @@ export CLOUDFRONT_DISTRIBUTION_ID="E1234567890ABC"
 
 ## Architecture
 
-```mermaid
-flowchart TB
-    Browser["🌐 Browser"]
-
-    subgraph DNS["Route53"]
-        Route53["DNS Alias"]
-    end
-
-    subgraph CDN["☁️ CloudFront CDN"]
-        Lambda["λ Lambda@Edge<br/>(Basic Auth)"]
-        ACM["🔒 ACM Certificate<br/>TLS 1.2+"]
-        Features["• Global edge locations<br/>• HTTP → HTTPS redirect<br/>• Gzip/Brotli compression<br/>• DDoS protection"]
-    end
-
-    subgraph Storage["📦 S3 Bucket (Private)"]
-        S3["Static Files"]
-    end
-
-    Browser -->|HTTPS| DNS
-    DNS --> CDN
-    CDN -->|OAI| Storage
-```
+![Architecture](docs/images/architecture-diagram.svg)
 
 ## Workflow
 
-```mermaid
-flowchart LR
-    subgraph INIT["1️⃣ INIT<br/>~2 min"]
-        I1["docusaurus.config.ts"]
-        I2["deploy.sh"]
-    end
-
-    subgraph INFRA["2️⃣ INFRA<br/>~30 min"]
-        F1["S3 Bucket"]
-        F2["CloudFront"]
-        F3["ACM Certificate"]
-        F4["Route53"]
-        F5["Lambda@Edge"]
-    end
-
-    subgraph DEPLOY["3️⃣ DEPLOY<br/>~2 min"]
-        D1["npm build"]
-        D2["S3 sync"]
-        D3["Invalidate cache"]
-    end
-
-    LIVE["🚀 SITE LIVE!<br/>https://domain"]
-
-    INIT --> INFRA --> DEPLOY --> LIVE
-```
+![Workflow](docs/images/workflow-diagram.svg)
 
 ## Cache Strategy
 
