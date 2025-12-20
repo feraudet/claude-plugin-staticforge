@@ -1,232 +1,130 @@
 # AWS Docusaurus: Check Status
 
-Check the status of your AWS infrastructure and recent deployments.
+Check AWS infrastructure and deployment status.
 
-## Interactive Configuration
+## Interactive Flow
 
-Before proceeding, check if required environment variables are set. If any are missing, ask the user for the values using AskUserQuestion.
+Execute these steps in order:
 
-### Required Variables Check
+### Step 1: Check and Prompt for Required Variables
 
-Check these environment variables and prompt for missing ones:
+For each missing variable, use AskUserQuestion:
 
-1. **CLOUDFRONT_DISTRIBUTION_ID** - CloudFront distribution ID (e.g., "E1234567890ABC")
-2. **S3_BUCKET** - S3 bucket name (e.g., "my-site")
-3. **AWS_PROFILE** - AWS CLI profile (default: "default")
-4. **AWS_REGION** - AWS region (default: "eu-west-3")
+1. **CLOUDFRONT_DISTRIBUTION_ID** (required)
+   - Check: `echo $CLOUDFRONT_DISTRIBUTION_ID`
+   - If empty, ask: "What is the CloudFront distribution ID?" (e.g., "E1234567890ABC")
 
-### Optional Variables
+2. **S3_BUCKET** (required)
+   - Check: `echo $S3_BUCKET`
+   - If empty, ask: "What is the S3 bucket name?"
 
-- **DOMAIN** - Custom domain for health checks
-- **SITE_NAME** - For Lambda@Edge status (if using auth)
+3. **AWS_PROFILE** (optional)
+   - Default: "default"
 
-## Execution Flow
+4. **DOMAIN** (optional, for health checks)
+   - Check: `echo $DOMAIN`
+   - If empty, ask: "What is the site domain? (optional, for health check)"
 
-1. Check environment variables
-2. Use AskUserQuestion for any missing required variables
-3. Run all status checks
-4. Display summary with health indicators
+### Step 2: Display Summary and Confirm
 
-## Status Checks to Perform
+Show configuration:
 
-### 1. CloudFront Distribution Status
+```
+Status Check Configuration
+==========================
+CloudFront ID:   ${CLOUDFRONT_DISTRIBUTION_ID}
+S3 Bucket:       ${S3_BUCKET}
+AWS Profile:     ${AWS_PROFILE}
+Domain:          ${DOMAIN}
 
+Run status checks?
+```
+
+Use AskUserQuestion with options:
+- "Yes, check status"
+- "No, cancel"
+
+### Step 3: Execute Status Checks
+
+Only after user confirms, run all checks:
+
+#### CloudFront Status
 ```bash
 aws cloudfront get-distribution \
   --id ${CLOUDFRONT_DISTRIBUTION_ID} \
-  --query '{
-    Status: Distribution.Status,
-    DomainName: Distribution.DomainName,
-    Enabled: Distribution.DistributionConfig.Enabled,
-    PriceClass: Distribution.DistributionConfig.PriceClass,
-    HttpVersion: Distribution.DistributionConfig.HttpVersion
-  }'
+  --query '{Status: Distribution.Status, Enabled: Distribution.DistributionConfig.Enabled}'
 ```
 
-Expected healthy output:
-```json
-{
-  "Status": "Deployed",
-  "DomainName": "d1234567890.cloudfront.net",
-  "Enabled": true
-}
-```
-
-### 2. S3 Bucket Status
-
+#### S3 Bucket Status
 ```bash
-# Check bucket exists and is accessible
 aws s3api head-bucket --bucket ${S3_BUCKET}
-
-# Get bucket size and object count
 aws s3 ls s3://${S3_BUCKET}/ --recursive --summarize | tail -2
-
-# List recent files
-aws s3 ls s3://${S3_BUCKET}/ --recursive --human-readable | head -20
 ```
 
-### 3. Recent Invalidations
-
+#### Recent Invalidations
 ```bash
 aws cloudfront list-invalidations \
   --distribution-id ${CLOUDFRONT_DISTRIBUTION_ID} \
-  --query 'InvalidationList.Items[0:5].[Id,Status,CreateTime]' \
-  --output table
+  --query 'InvalidationList.Items[0:3]'
 ```
 
-### 4. Certificate Status
-
+#### Certificate Status
 ```bash
-# Get certificate ARN from distribution
 CERT_ARN=$(aws cloudfront get-distribution \
   --id ${CLOUDFRONT_DISTRIBUTION_ID} \
   --query 'Distribution.DistributionConfig.ViewerCertificate.ACMCertificateArn' \
   --output text)
 
-# Check certificate status
 aws acm describe-certificate \
   --region us-east-1 \
   --certificate-arn ${CERT_ARN} \
-  --query '{
-    Status: Certificate.Status,
-    DomainName: Certificate.DomainName,
-    NotAfter: Certificate.NotAfter,
-    RenewalEligibility: Certificate.RenewalEligibility
-  }'
+  --query '{Status: Certificate.Status, Expiry: Certificate.NotAfter}'
 ```
 
-### 5. Lambda@Edge Status (if using auth)
-
+#### Site Health (if DOMAIN set)
 ```bash
-aws lambda get-function \
-  --region us-east-1 \
-  --function-name ${SITE_NAME}-basic-auth \
-  --query '{
-    Runtime: Configuration.Runtime,
-    LastModified: Configuration.LastModified,
-    State: Configuration.State
-  }'
+curl -sI https://${DOMAIN} | head -1
+curl -w "TTFB: %{time_starttransfer}s\n" -o /dev/null -s https://${DOMAIN}
 ```
 
-### 6. Site Health Check (if DOMAIN is set)
+### Step 4: Display Results
 
-```bash
-# Basic connectivity
-curl -I https://${DOMAIN}
-
-# Response timing
-curl -w "Connect: %{time_connect}s\nTTFB: %{time_starttransfer}s\nTotal: %{time_total}s\n" \
-  -o /dev/null -s https://${DOMAIN}
-```
-
-## Status Summary Format
-
-Display a summary table:
+Show formatted status report:
 
 ```
 AWS Docusaurus Status
 =====================
 
-CloudFront Distribution: ${CLOUDFRONT_DISTRIBUTION_ID}
-├── Status: Deployed
-├── Domain: d1234567890.cloudfront.net
-└── Enabled: true
+CloudFront: ${CLOUDFRONT_DISTRIBUTION_ID}
+├── Status:  Deployed ✓
+├── Enabled: true ✓
+└── Domain:  ${CF_DOMAIN}
 
 S3 Bucket: ${S3_BUCKET}
-├── Objects: 156
-└── Size: 12.4 MB
+├── Status:  Accessible ✓
+├── Objects: ${OBJECT_COUNT}
+└── Size:    ${BUCKET_SIZE}
 
 Certificate:
-├── Status: ISSUED
-├── Domain: docs.example.com
-└── Expires: 2025-12-20
-
-Last Invalidations:
-├── I1234... - Completed - 2024-12-20 10:30
-└── I5678... - Completed - 2024-12-19 15:45
+├── Status:  ISSUED ✓
+└── Expires: ${CERT_EXPIRY}
 
 Site Health: https://${DOMAIN}
-├── Status: 200 OK
-├── TTFB: 0.123s
-└── Cache-Control: OK
+├── Status:  200 OK ✓
+└── TTFB:    ${TTFB}s
+
+Last Invalidations:
+├── ${INV_1_ID} - ${INV_1_STATUS}
+└── ${INV_2_ID} - ${INV_2_STATUS}
 ```
 
-## Troubleshooting Guide
+### Step 5: Offer Quick Actions
 
-| Symptom | Check | Solution |
-|---------|-------|----------|
-| 403 Forbidden | S3 bucket policy | Verify OAI configuration |
-| 502 Bad Gateway | Lambda@Edge logs | Check us-east-1 CloudWatch |
-| Stale content | Invalidation status | Create new invalidation |
-| Slow response | Cache hit rate | Verify cache headers |
-| Certificate error | ACM status | Check renewal/validation |
+Use AskUserQuestion to offer actions:
 
-## Quick Actions
+"What would you like to do next?"
+- "Invalidate CloudFront cache"
+- "Redeploy site"
+- "Nothing, I'm done"
 
-After status check, offer these actions:
-
-1. **Invalidate cache** - Create new CloudFront invalidation
-2. **View logs** - Open CloudWatch logs (if Lambda@Edge)
-3. **Redeploy** - Run `/aws-docusaurus:deploy`
-
-## CI/CD Examples
-
-### GitHub Actions
-
-```yaml
-name: Deploy to AWS
-
-on:
-  push:
-    branches: [main]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install & Build
-        run: |
-          npm ci
-          npm run build
-
-      - name: Configure AWS
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-west-3
-
-      - name: Deploy to S3
-        run: aws s3 sync build/ s3://${{ secrets.S3_BUCKET }}/ --delete
-
-      - name: Invalidate CloudFront
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
-            --paths "/*"
-```
-
-### GitLab CI
-
-```yaml
-deploy:
-  stage: deploy
-  image: node:20
-  before_script:
-    - apt-get update && apt-get install -y awscli
-  script:
-    - npm ci
-    - npm run build
-    - aws s3 sync build/ s3://${S3_BUCKET}/ --delete
-    - aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_DISTRIBUTION_ID} --paths "/*"
-  only:
-    - main
-```
+Execute selected action if requested.

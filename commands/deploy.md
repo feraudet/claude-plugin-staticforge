@@ -1,150 +1,129 @@
 # AWS Docusaurus: Deploy Site
 
-Deploys static site content to AWS S3 + CloudFront with optimized caching strategy.
+Deploy static site to AWS S3 + CloudFront.
 
-## Interactive Configuration
+## Interactive Flow
 
-Before proceeding, check if required environment variables are set. If any are missing, ask the user for the values using AskUserQuestion.
+Execute these steps in order:
 
-### Required Variables Check
+### Step 1: Auto-Detect Framework
 
-Check these environment variables and prompt for missing ones:
-
-1. **S3_BUCKET** - S3 bucket name (e.g., "my-site")
-2. **CLOUDFRONT_DISTRIBUTION_ID** - CloudFront distribution ID (e.g., "E1234567890ABC")
-3. **BUILD_DIR** - Build output directory (default based on framework detection)
-4. **AWS_PROFILE** - AWS CLI profile (default: "default")
-5. **AWS_REGION** - AWS region (default: "eu-west-3")
-
-### Auto-Detection
-
-Try to auto-detect:
-- **BUILD_COMMAND**: Detect from package.json scripts
-- **BUILD_DIR**: Detect based on framework (build, dist, out, public)
-- **Framework**: Check for docusaurus.config.*, next.config.*, vite.config.*, etc.
-
-### Framework Detection Table
-
-| Framework | Detection | BUILD_COMMAND | BUILD_DIR |
-|-----------|-----------|---------------|-----------|
-| Docusaurus | docusaurus.config.* | `npm run build` | `build` |
-| Next.js | next.config.* | `npm run build` | `out` |
-| Vite | vite.config.* | `npm run build` | `dist` |
-| Vue CLI | vue.config.* | `npm run build` | `dist` |
-| Create React App | react-scripts in package.json | `npm run build` | `build` |
-| Hugo | config.toml/hugo.toml | `hugo --minify` | `public` |
-| Astro | astro.config.* | `npm run build` | `dist` |
-| Gatsby | gatsby-config.* | `gatsby build` | `public` |
-
-## Execution Flow
-
-1. Check environment variables
-2. Auto-detect framework and build settings
-3. Use AskUserQuestion for any missing required variables
-4. Confirm settings before deploying
-5. Build the site
-6. Deploy to S3 with optimized cache headers
-7. Invalidate CloudFront cache
-8. Show deployment summary
-
-## Cache Strategy
-
-| File Type | Cache-Control | TTL | Rationale |
-|-----------|---------------|-----|-----------|
-| `*.js`, `*.css` | `max-age=31536000, immutable` | 1 year | Content-hashed |
-| Images, fonts | `max-age=31536000, immutable` | 1 year | Static assets |
-| `*.html` | `max-age=0, must-revalidate` | 0 | Always fresh |
-| `sw.js` | `max-age=0, must-revalidate` | 0 | Service worker |
-| `sitemap.xml` | `max-age=86400` | 1 day | Semi-static |
-| `*.json` | `max-age=0, must-revalidate` | 0 | Dynamic data |
-
-## Deployment Steps
-
-### Step 1: Build Site
+Check for framework configuration files:
 
 ```bash
-${BUILD_COMMAND}
+# Detect framework
+ls docusaurus.config.* 2>/dev/null && echo "Docusaurus detected"
+ls next.config.* 2>/dev/null && echo "Next.js detected"
+ls vite.config.* 2>/dev/null && echo "Vite detected"
+ls astro.config.* 2>/dev/null && echo "Astro detected"
+ls gatsby-config.* 2>/dev/null && echo "Gatsby detected"
+ls hugo.toml config.toml 2>/dev/null && echo "Hugo detected"
 ```
 
-Verify build directory exists.
+Set defaults based on detected framework:
 
-### Step 2: Upload Static Assets (1-year cache)
+| Framework | BUILD_COMMAND | BUILD_DIR |
+|-----------|---------------|-----------|
+| Docusaurus | `npm run build` | `build` |
+| Next.js | `npm run build` | `out` |
+| Vite | `npm run build` | `dist` |
+| Astro | `npm run build` | `dist` |
+| Gatsby | `gatsby build` | `public` |
+| Hugo | `hugo --minify` | `public` |
 
-Upload JS, CSS, images, fonts with immutable cache:
+### Step 2: Check and Prompt for Required Variables
 
-```bash
-aws s3 sync ${BUILD_DIR}/ s3://${S3_BUCKET}/ \
-  --delete \
-  --cache-control "public, max-age=31536000, immutable" \
-  --exclude "*.html" \
-  --exclude "sw.js" \
-  --exclude "sitemap.xml" \
-  --exclude "*.json"
+For each missing variable, use AskUserQuestion:
+
+1. **S3_BUCKET** (required)
+   - Check: `echo $S3_BUCKET`
+   - If empty, ask: "What is the S3 bucket name?"
+
+2. **CLOUDFRONT_DISTRIBUTION_ID** (required)
+   - Check: `echo $CLOUDFRONT_DISTRIBUTION_ID`
+   - If empty, ask: "What is the CloudFront distribution ID?" (e.g., "E1234567890ABC")
+
+3. **BUILD_COMMAND** (auto-detected or ask)
+   - Check: `echo $BUILD_COMMAND`
+   - If empty and not auto-detected, ask: "What is the build command?"
+   - Default based on framework
+
+4. **BUILD_DIR** (auto-detected or ask)
+   - Check: `echo $BUILD_DIR`
+   - If empty and not auto-detected, ask: "What is the build output directory?"
+   - Default based on framework
+
+5. **AWS_PROFILE** (optional)
+   - Default: "default"
+
+### Step 3: Display Summary and Confirm
+
+Show deployment configuration:
+
+```
+Deployment Configuration
+========================
+Framework:       ${DETECTED_FRAMEWORK}
+Build Command:   ${BUILD_COMMAND}
+Build Directory: ${BUILD_DIR}
+S3 Bucket:       ${S3_BUCKET}
+CloudFront ID:   ${CLOUDFRONT_DISTRIBUTION_ID}
+AWS Profile:     ${AWS_PROFILE}
+
+Cache Strategy:
+• JS/CSS/Images: 1 year (immutable)
+• HTML/JSON:     No cache (always fresh)
+
+Proceed with deployment?
 ```
 
-### Step 3: Upload HTML (no cache)
+Use AskUserQuestion with options:
+- "Yes, build and deploy"
+- "No, let me change something"
 
-Upload HTML files with must-revalidate:
+### Step 4: Execute Deployment
 
-```bash
-aws s3 sync ${BUILD_DIR}/ s3://${S3_BUCKET}/ \
-  --exclude "*" \
-  --include "*.html" \
-  --cache-control "public, max-age=0, must-revalidate" \
-  --content-type "text/html; charset=utf-8"
+Only after user confirms:
+
+1. Build the site:
+   ```bash
+   ${BUILD_COMMAND}
+   ```
+
+2. Verify build directory exists
+
+3. Upload static assets (1-year cache):
+   ```bash
+   aws s3 sync ${BUILD_DIR}/ s3://${S3_BUCKET}/ \
+     --delete \
+     --cache-control "public, max-age=31536000, immutable" \
+     --exclude "*.html" --exclude "*.json" --exclude "sw.js"
+   ```
+
+4. Upload HTML (no cache):
+   ```bash
+   aws s3 sync ${BUILD_DIR}/ s3://${S3_BUCKET}/ \
+     --exclude "*" --include "*.html" \
+     --cache-control "public, max-age=0, must-revalidate"
+   ```
+
+5. Invalidate CloudFront:
+   ```bash
+   aws cloudfront create-invalidation \
+     --distribution-id ${CLOUDFRONT_DISTRIBUTION_ID} \
+     --paths "/*"
+   ```
+
+### Step 5: Show Results
+
+After completion, display:
+
 ```
+Deployment successful!
 
-### Step 4: Upload JSON and Sitemap
+Site URL:        https://${DOMAIN}
+Files uploaded:  ${FILE_COUNT}
+Invalidation:    ${INVALIDATION_ID}
 
-```bash
-aws s3 sync ${BUILD_DIR}/ s3://${S3_BUCKET}/ \
-  --exclude "*" \
-  --include "*.json" \
-  --include "sitemap.xml" \
-  --cache-control "public, max-age=0, must-revalidate"
+Check status: /aws-docusaurus:status
 ```
-
-### Step 5: Invalidate CloudFront Cache
-
-```bash
-aws cloudfront create-invalidation \
-  --distribution-id ${CLOUDFRONT_DISTRIBUTION_ID} \
-  --paths "/*"
-```
-
-## Verification
-
-After deployment, verify:
-
-```bash
-# Check distribution status
-aws cloudfront get-distribution \
-  --id ${CLOUDFRONT_DISTRIBUTION_ID} \
-  --query 'Distribution.Status'
-
-# Test site response
-curl -I ${SITE_URL}
-
-# Check cache headers
-curl -I ${SITE_URL}/index.html 2>/dev/null | grep -i cache-control
-```
-
-## Rollback
-
-If issues occur:
-
-```bash
-# Redeploy previous version
-git checkout <previous-commit>
-${BUILD_COMMAND}
-# Re-run deploy
-
-# Or invalidate to clear bad cache
-aws cloudfront create-invalidation \
-  --distribution-id ${CLOUDFRONT_DISTRIBUTION_ID} \
-  --paths "/*"
-```
-
-## Next Steps
-
-Run `/aws-docusaurus:status` to monitor your deployment.

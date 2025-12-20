@@ -1,162 +1,113 @@
 # AWS Docusaurus: Create AWS Infrastructure
 
-Creates complete AWS infrastructure for hosting static sites with CloudFront CDN, S3 storage, HTTPS, and optional Basic Authentication.
+Create complete AWS infrastructure for static site hosting.
 
-## Interactive Configuration
+## Interactive Flow
 
-Before proceeding, check if required environment variables are set. If any are missing, ask the user for the values using AskUserQuestion.
+Execute these steps in order:
 
-### Required Variables Check
+### Step 1: Check and Prompt for Required Variables
 
-Check these environment variables and prompt for missing ones:
+For each missing variable, use AskUserQuestion to prompt the user:
 
-1. **SITE_NAME** - Resource naming, S3 bucket name (e.g., "my-site")
-2. **DOMAIN** - Custom domain with subdomain (e.g., "docs.example.com")
-3. **HOSTED_ZONE_ID** - Route53 hosted zone ID (e.g., "Z1234567890ABC")
-4. **AWS_PROFILE** - AWS CLI profile name (default: "default")
-5. **AWS_REGION** - Primary AWS region (default: "eu-west-3")
+1. **SITE_NAME** (required)
+   - Check: `echo $SITE_NAME`
+   - If empty, ask: "What is the site/bucket name?" (e.g., "my-docs")
 
-### Optional - Basic Authentication
+2. **DOMAIN** (required)
+   - Check: `echo $DOMAIN`
+   - If empty, ask: "What is the custom domain?" (e.g., "docs.example.com")
 
-Ask the user if they want to enable Basic Auth protection:
+3. **HOSTED_ZONE_ID** (required)
+   - Check: `echo $HOSTED_ZONE_ID`
+   - If empty, ask: "What is the Route53 Hosted Zone ID?" (e.g., "Z1234567890ABC")
+   - Hint: Run `aws route53 list-hosted-zones` to find it
 
-- **Enable Basic Auth?** - Yes/No question
-- If yes, ask for:
-  - **AUTH_USERNAME** - Username for Basic Auth
-  - **AUTH_PASSWORD** - Password (min 8 chars, suggest strong password)
+4. **AWS_PROFILE** (optional)
+   - Check: `echo $AWS_PROFILE`
+   - If empty, ask: "Which AWS CLI profile to use?"
+   - Default: "default"
 
-## Execution Flow
+5. **AWS_REGION** (optional)
+   - Check: `echo $AWS_REGION`
+   - If empty, ask: "Which AWS region?"
+   - Default: "eu-west-3"
 
-1. Check environment variables
-2. Use AskUserQuestion for any missing required variables
-3. Ask about Basic Auth option
-4. Show summary and confirm before creating infrastructure
-5. Execute infrastructure creation steps
+### Step 2: Basic Authentication (Optional)
 
-## Architecture Created
+Use AskUserQuestion to ask:
+
+"Do you want to enable Basic Authentication?"
+- Options: "Yes", "No"
+
+If yes, prompt for:
+- **AUTH_USERNAME**: "Enter the username"
+- **AUTH_PASSWORD**: "Enter the password" (min 8 characters)
+
+### Step 3: Display Summary and Confirm
+
+Show complete configuration summary:
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                          INTERNET                               │
-└───────────────────────────────┬─────────────────────────────────┘
-                                │
-                    ┌───────────▼───────────┐
-                    │      Route53          │
-                    │    DNS Alias          │
-                    │  (${DOMAIN})          │
-                    └───────────┬───────────┘
-                                │
-┌───────────────────────────────▼─────────────────────────────────┐
-│                     CloudFront CDN                              │
-│  ┌────────────────────────────────────────────────────────────┐ │
-│  │  Lambda@Edge (viewer-request) - Basic Auth (if enabled)    │ │
-│  └────────────────────────────────────────────────────────────┘ │
-│  ┌────────────────────────────────────────────────────────────┐ │
-│  │  ACM Certificate (HTTPS) - TLS 1.2+                        │ │
-│  └────────────────────────────────────────────────────────────┘ │
-│  • HTTPS redirect  • Gzip compression  • Edge caching          │
-└───────────────────────────────┬─────────────────────────────────┘
-                                │
-                    ┌───────────▼───────────┐
-                    │     S3 Bucket         │
-                    │   (Private - OAI)     │
-                    │  ${SITE_NAME}         │
-                    └───────────────────────┘
+Infrastructure Configuration
+============================
+Site Name:       ${SITE_NAME}
+Domain:          ${DOMAIN}
+Hosted Zone ID:  ${HOSTED_ZONE_ID}
+AWS Profile:     ${AWS_PROFILE}
+AWS Region:      ${AWS_REGION}
+Basic Auth:      ${AUTH_ENABLED} (username: ${AUTH_USERNAME})
+
+Resources to create:
+• S3 Bucket: ${SITE_NAME}
+• ACM Certificate: ${DOMAIN} (us-east-1)
+• CloudFront Distribution
+• Route53 A Record: ${DOMAIN}
+• Lambda@Edge: ${SITE_NAME}-basic-auth (if auth enabled)
+
+Proceed with infrastructure creation?
 ```
 
-## Infrastructure Components
+Use AskUserQuestion with options:
+- "Yes, create infrastructure"
+- "No, let me change something"
 
-| Component | Purpose | Region |
-|-----------|---------|--------|
-| S3 Bucket | Static file storage | ${AWS_REGION} |
-| CloudFront | CDN distribution | Global (Edge) |
-| ACM Certificate | HTTPS/TLS | us-east-1 (required) |
-| Route53 Record | DNS alias | Global |
-| Lambda@Edge | Basic Auth (optional) | us-east-1 |
-| IAM Role | Lambda execution | Global |
-| OAI | S3 access control | Global |
+### Step 4: Execute Infrastructure Creation
 
-## Execution Steps
+Only after user confirms:
 
-### Step 1: Create S3 Bucket
+1. Create S3 bucket (private, block public access)
+2. Request ACM certificate in us-east-1
+3. Wait for certificate validation
+4. Create CloudFront OAI
+5. Configure S3 bucket policy
+6. Create Lambda@Edge (if auth enabled)
+7. Create CloudFront distribution
+8. Create Route53 alias record
 
-- Create bucket with LocationConstraint
-- Block ALL public access
-- Configure for private access only
+### Step 5: Show Results
 
-### Step 2: Request ACM Certificate
+After completion, display:
 
-- Request certificate in us-east-1 (CloudFront requirement)
-- Create DNS validation CNAME record
-- Wait for validation (5-30 minutes)
+```
+Infrastructure created successfully!
 
-### Step 3: Create Origin Access Identity
+S3 Bucket:              ${SITE_NAME}
+CloudFront ID:          ${CLOUDFRONT_DISTRIBUTION_ID}
+CloudFront Domain:      ${CF_DOMAIN}
+Site URL:               https://${DOMAIN}
 
-- Create OAI for CloudFront to S3 access
-- Get S3 canonical user ID
-
-### Step 4: Configure S3 Bucket Policy
-
-- Allow only OAI access
-- Deny all public access
-
-### Step 5: Create IAM Role (if Basic Auth)
-
-- Create Lambda@Edge execution role
-- Attach basic execution policy
-- Wait for IAM propagation
-
-### Step 6: Create Lambda@Edge Function (if Basic Auth)
-
-- Create Node.js 20 function
-- Deploy to us-east-1
-- Publish version for CloudFront
-
-### Step 7: Create CloudFront Distribution
-
-- Configure S3 origin with OAI
-- Set HTTPS redirect
-- Enable compression
-- Configure cache behaviors
-- Attach Lambda@Edge (if auth)
-- Set custom error pages (SPA support)
-
-### Step 8: Create Route53 Alias
-
-- Create A record alias to CloudFront
-- Use CloudFront hosted zone ID (Z2FDTNDATAQYW2)
-
-## Output Variables
-
-After successful execution, display and suggest exporting:
-
-```bash
+Export these for deployment:
 export S3_BUCKET="${SITE_NAME}"
 export CLOUDFRONT_DISTRIBUTION_ID="${CF_ID}"
-export SITE_URL="https://${DOMAIN}"
-export LAMBDA_VERSION_ARN="${LAMBDA_VERSION_ARN}"  # if auth enabled
+
+Next step: /aws-docusaurus:deploy
 ```
 
-## Verification
+## Architecture
 
-```bash
-# Check CloudFront status (wait for "Deployed")
-aws cloudfront get-distribution --id ${CF_ID} --query 'Distribution.Status'
-
-# Test site (after deployment)
-curl -I https://${DOMAIN}
-
-# Test with auth (if enabled)
-curl -u ${AUTH_USERNAME}:${AUTH_PASSWORD} https://${DOMAIN}
 ```
-
-## Security Features
-
-- **S3**: Private bucket, no public access
-- **HTTPS**: Forced redirect, TLS 1.2 minimum
-- **OAI**: CloudFront-only S3 access
-- **Lambda@Edge**: Optional authentication layer
-
-## Next Steps
-
-Run `/aws-docusaurus:deploy` to deploy your site content.
+Route53 → CloudFront (+ Lambda@Edge) → S3 (private)
+              ↓
+         ACM Certificate (HTTPS)
+```

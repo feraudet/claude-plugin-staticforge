@@ -2,106 +2,101 @@
 
 Initialize a new Docusaurus project pre-configured for AWS deployment.
 
-## Interactive Configuration
+## Interactive Flow
 
-Before proceeding, check if required environment variables are set. If any are missing, ask the user for the values using AskUserQuestion.
+Execute these steps in order:
 
-### Required Variables Check
+### Step 1: Check and Prompt for Required Variables
 
-Check these environment variables and prompt for missing ones:
+For each missing variable, use AskUserQuestion to prompt the user:
 
-1. **PROJECT_NAME** - Directory/project name (e.g., "my-docs")
-2. **SITE_TITLE** - Site title displayed in header (e.g., "My Documentation")
-3. **SITE_URL** - Production URL with https:// (e.g., "https://docs.example.com")
+1. **PROJECT_NAME** (required)
+   - Check: `echo $PROJECT_NAME`
+   - If empty, ask: "What is the project directory name?" (e.g., "my-docs")
 
-### Optional Variables (ask if user wants to customize)
+2. **SITE_TITLE** (required)
+   - Check: `echo $SITE_TITLE`
+   - If empty, ask: "What is the site title?" (e.g., "My Documentation")
 
-- **SITE_TAGLINE** - Tagline under title (default: "Documentation")
-- **ORG_NAME** - GitHub organization (default: derived from URL)
-- **LOCALE** - Site language: en, fr, de, etc. (default: "en")
-- **AWS_REGION** - AWS region (default: "eu-west-3")
+3. **SITE_URL** (required)
+   - Check: `echo $SITE_URL`
+   - If empty, ask: "What is the production URL?" (e.g., "https://docs.example.com")
 
-## Execution Flow
+### Step 2: Optional Variables
 
-1. Check environment variables
-2. If any required variable is missing, use AskUserQuestion to prompt the user
-3. Confirm configuration with user before proceeding
-4. Execute the initialization steps
+Ask user if they want to customize optional settings:
 
-## What Gets Created
+- **SITE_TAGLINE** - Default: "Documentation"
+- **LOCALE** - Default: "en" (options: en, fr, de, es, etc.)
+- **AWS_REGION** - Default: "eu-west-3"
+
+### Step 3: Display Summary and Confirm
+
+Show a summary of all configuration:
+
+```
+Configuration Summary
+=====================
+Project Name:  ${PROJECT_NAME}
+Site Title:    ${SITE_TITLE}
+Site URL:      ${SITE_URL}
+Tagline:       ${SITE_TAGLINE}
+Locale:        ${LOCALE}
+AWS Region:    ${AWS_REGION}
+
+Proceed with initialization?
+```
+
+Use AskUserQuestion with options:
+- "Yes, create the project"
+- "No, let me change something"
+
+### Step 4: Execute Initialization
+
+Only after user confirms, execute:
+
+1. Create Docusaurus project:
+   ```bash
+   npx create-docusaurus@latest ${PROJECT_NAME} classic --typescript
+   cd ${PROJECT_NAME}
+   npm install
+   ```
+
+2. Configure docusaurus.config.ts with production settings
+
+3. Create deploy.sh script
+
+4. Configure .gitignore
+
+5. Create initial documentation
+
+### Step 5: Show Next Steps
+
+After completion, display:
+
+```
+Project created successfully!
+
+Next steps:
+1. cd ${PROJECT_NAME}
+2. npm start (to preview locally)
+3. /aws-docusaurus:infra (to create AWS infrastructure)
+4. /aws-docusaurus:deploy (to deploy)
+```
+
+## Project Structure Created
 
 ```
 ${PROJECT_NAME}/
-├── docusaurus.config.ts      # Pre-configured for production
-├── sidebars.ts               # Sidebar configuration
-├── package.json              # Dependencies + scripts
-├── deploy.sh                 # AWS deployment script
-├── .gitignore                # Proper ignores
+├── docusaurus.config.ts
+├── sidebars.ts
+├── package.json
+├── deploy.sh
+├── .gitignore
 ├── docs/
-│   └── intro.md              # First documentation page
+│   └── intro.md
 ├── src/
-│   ├── css/
-│   │   └── custom.css        # Custom styling
-│   └── pages/
-│       └── index.tsx         # Homepage
-└── static/
-    └── img/                  # Static assets
+│   ├── css/custom.css
+│   └── pages/index.tsx
+└── static/img/
 ```
-
-## Execution Steps
-
-### Step 1: Create Docusaurus Project
-
-```bash
-npx create-docusaurus@latest ${PROJECT_NAME} classic --typescript
-cd ${PROJECT_NAME}
-npm install
-```
-
-### Step 2: Configure docusaurus.config.ts
-
-Replace with production-ready settings including:
-- Site URL and base configuration
-- SEO-optimized meta tags
-- Dark mode support
-- Prism syntax highlighting
-- Build optimizations
-
-### Step 3: Create deploy.sh
-
-Generate deployment script with:
-- Optimized cache headers per file type
-- S3 sync with proper exclusions
-- CloudFront invalidation
-
-### Step 4: Configure .gitignore
-
-Add proper ignores for:
-- node_modules, build, .docusaurus
-- IDE files, OS files
-- Environment files
-
-### Step 5: Create Initial Documentation
-
-Generate starter docs/intro.md with:
-- Getting started guide
-- Local development instructions
-- Build and deploy commands
-
-## Verification
-
-```bash
-# Start development server
-npm start
-
-# Build for production
-npm run build
-
-# Serve production build locally
-npm run serve
-```
-
-## Next Steps
-
-1. Run `/aws-docusaurus:infra` to create AWS infrastructure
-2. Run `/aws-docusaurus:deploy` to deploy your site
