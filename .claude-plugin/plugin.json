@@ -17,5 +17,7 @@
     "static-site",
     "deployment",
     "infrastructure"
-  ]
+  ],
+  "commands": "./commands/",
+  "skills": "./skills/"
 }
