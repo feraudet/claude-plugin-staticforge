@@ -2,32 +2,49 @@
 
 Check AWS infrastructure and deployment status.
 
+## Configuration Storage
+
+Read configuration from `.claude/aws-docusaurus/config.json`:
+
+```json
+{
+  "infra": {
+    "CLOUDFRONT_DISTRIBUTION_ID": "...",
+    "S3_BUCKET": "...",
+    "DOMAIN": "..."
+  },
+  "deploy": {
+    "AWS_PROFILE": "...",
+    "AWS_REGION": "..."
+  }
+}
+```
+
 ## Interactive Flow
 
-Execute these steps in order:
+### Step 1: Load Saved Configuration
 
-### Step 1: Check and Prompt for Required Variables
+Read existing config:
+```bash
+cat .claude/aws-docusaurus/config.json 2>/dev/null
+```
 
-For each missing variable, use AskUserQuestion:
+### Step 2: Check and Prompt for Variables
 
-1. **CLOUDFRONT_DISTRIBUTION_ID** (required)
-   - Check: `echo $CLOUDFRONT_DISTRIBUTION_ID`
-   - If empty, ask: "What is the CloudFront distribution ID?" (e.g., "E1234567890ABC")
+For each variable, check in this order:
+1. Environment variable
+2. Saved config (`infra` and `deploy` sections)
+3. If not found, use AskUserQuestion
 
-2. **S3_BUCKET** (required)
-   - Check: `echo $S3_BUCKET`
-   - If empty, ask: "What is the S3 bucket name?"
+**Required:**
+- **CLOUDFRONT_DISTRIBUTION_ID**: CloudFront ID
+- **S3_BUCKET**: S3 bucket name
 
-3. **AWS_PROFILE** (optional)
-   - Default: "default"
+**Optional:**
+- **AWS_PROFILE**: Default "default"
+- **DOMAIN**: For health checks
 
-4. **DOMAIN** (optional, for health checks)
-   - Check: `echo $DOMAIN`
-   - If empty, ask: "What is the site domain? (optional, for health check)"
-
-### Step 2: Display Summary and Confirm
-
-Show configuration:
+### Step 3: Display Summary and Confirm
 
 ```
 Status Check Configuration
@@ -40,13 +57,15 @@ Domain:          ${DOMAIN}
 Run status checks?
 ```
 
-Use AskUserQuestion with options:
+Use AskUserQuestion:
 - "Yes, check status"
 - "No, cancel"
 
-### Step 3: Execute Status Checks
+### Step 4: Save Configuration (if new values provided)
 
-Only after user confirms, run all checks:
+If user provided new values, update `.claude/aws-docusaurus/config.json`.
+
+### Step 5: Execute Status Checks
 
 #### CloudFront Status
 ```bash
@@ -87,30 +106,28 @@ curl -sI https://${DOMAIN} | head -1
 curl -w "TTFB: %{time_starttransfer}s\n" -o /dev/null -s https://${DOMAIN}
 ```
 
-### Step 4: Display Results
-
-Show formatted status report:
+### Step 6: Display Results
 
 ```
 AWS Docusaurus Status
 =====================
 
 CloudFront: ${CLOUDFRONT_DISTRIBUTION_ID}
-├── Status:  Deployed ✓
-├── Enabled: true ✓
+├── Status:  Deployed
+├── Enabled: true
 └── Domain:  ${CF_DOMAIN}
 
 S3 Bucket: ${S3_BUCKET}
-├── Status:  Accessible ✓
+├── Status:  Accessible
 ├── Objects: ${OBJECT_COUNT}
 └── Size:    ${BUCKET_SIZE}
 
 Certificate:
-├── Status:  ISSUED ✓
+├── Status:  ISSUED
 └── Expires: ${CERT_EXPIRY}
 
 Site Health: https://${DOMAIN}
-├── Status:  200 OK ✓
+├── Status:  200 OK
 └── TTFB:    ${TTFB}s
 
 Last Invalidations:
@@ -118,13 +135,10 @@ Last Invalidations:
 └── ${INV_2_ID} - ${INV_2_STATUS}
 ```
 
-### Step 5: Offer Quick Actions
+### Step 7: Offer Quick Actions
 
-Use AskUserQuestion to offer actions:
-
+Use AskUserQuestion:
 "What would you like to do next?"
 - "Invalidate CloudFront cache"
-- "Redeploy site"
-- "Nothing, I'm done"
-
-Execute selected action if requested.
+- "Redeploy site (/aws-docusaurus:deploy)"
+- "Nothing, done"

@@ -2,37 +2,50 @@
 
 Initialize a new Docusaurus project pre-configured for AWS deployment.
 
+## Configuration Storage
+
+Store and retrieve configuration from `.claude/aws-docusaurus/config.json`:
+
+```json
+{
+  "init": {
+    "PROJECT_NAME": "...",
+    "SITE_TITLE": "...",
+    "SITE_URL": "...",
+    "SITE_TAGLINE": "...",
+    "LOCALE": "...",
+    "AWS_REGION": "..."
+  }
+}
+```
+
 ## Interactive Flow
 
-Execute these steps in order:
+### Step 1: Load Saved Configuration
 
-### Step 1: Check and Prompt for Required Variables
+Read existing config:
+```bash
+cat .claude/aws-docusaurus/config.json 2>/dev/null
+```
 
-For each missing variable, use AskUserQuestion to prompt the user:
+### Step 2: Check and Prompt for Variables
 
-1. **PROJECT_NAME** (required)
-   - Check: `echo $PROJECT_NAME`
-   - If empty, ask: "What is the project directory name?" (e.g., "my-docs")
+For each variable, check in this order:
+1. Environment variable (`echo $VAR`)
+2. Saved config (`.claude/aws-docusaurus/config.json`)
+3. If not found, use AskUserQuestion to prompt
 
-2. **SITE_TITLE** (required)
-   - Check: `echo $SITE_TITLE`
-   - If empty, ask: "What is the site title?" (e.g., "My Documentation")
+**Required:**
+- **PROJECT_NAME**: Directory/project name (e.g., "my-docs")
+- **SITE_TITLE**: Site title (e.g., "My Documentation")
+- **SITE_URL**: Production URL (e.g., "https://docs.example.com")
 
-3. **SITE_URL** (required)
-   - Check: `echo $SITE_URL`
-   - If empty, ask: "What is the production URL?" (e.g., "https://docs.example.com")
-
-### Step 2: Optional Variables
-
-Ask user if they want to customize optional settings:
-
-- **SITE_TAGLINE** - Default: "Documentation"
-- **LOCALE** - Default: "en" (options: en, fr, de, es, etc.)
-- **AWS_REGION** - Default: "eu-west-3"
+**Optional (with defaults):**
+- **SITE_TAGLINE**: Default "Documentation"
+- **LOCALE**: Default "en"
+- **AWS_REGION**: Default "eu-west-3"
 
 ### Step 3: Display Summary and Confirm
-
-Show a summary of all configuration:
 
 ```
 Configuration Summary
@@ -47,13 +60,21 @@ AWS Region:    ${AWS_REGION}
 Proceed with initialization?
 ```
 
-Use AskUserQuestion with options:
+Use AskUserQuestion:
 - "Yes, create the project"
 - "No, let me change something"
 
-### Step 4: Execute Initialization
+### Step 4: Save Configuration
 
-Only after user confirms, execute:
+After confirmation, save to `.claude/aws-docusaurus/config.json`:
+
+```bash
+mkdir -p .claude/aws-docusaurus
+```
+
+Write/update config.json with the init section containing all values.
+
+### Step 5: Execute Initialization
 
 1. Create Docusaurus project:
    ```bash
@@ -62,29 +83,25 @@ Only after user confirms, execute:
    npm install
    ```
 
-2. Configure docusaurus.config.ts with production settings
-
+2. Configure docusaurus.config.ts
 3. Create deploy.sh script
-
 4. Configure .gitignore
-
 5. Create initial documentation
 
-### Step 5: Show Next Steps
-
-After completion, display:
+### Step 6: Show Next Steps
 
 ```
 Project created successfully!
+Configuration saved to .claude/aws-docusaurus/config.json
 
 Next steps:
 1. cd ${PROJECT_NAME}
-2. npm start (to preview locally)
-3. /aws-docusaurus:infra (to create AWS infrastructure)
-4. /aws-docusaurus:deploy (to deploy)
+2. npm start (preview locally)
+3. /aws-docusaurus:infra (create AWS infrastructure)
+4. /aws-docusaurus:deploy (deploy)
 ```
 
-## Project Structure Created
+## Project Structure
 
 ```
 ${PROJECT_NAME}/
@@ -93,8 +110,7 @@ ${PROJECT_NAME}/
 ├── package.json
 ├── deploy.sh
 ├── .gitignore
-├── docs/
-│   └── intro.md
+├── docs/intro.md
 ├── src/
 │   ├── css/custom.css
 │   └── pages/index.tsx

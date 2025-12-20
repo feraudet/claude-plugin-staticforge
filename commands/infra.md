@@ -2,51 +2,62 @@
 
 Create complete AWS infrastructure for static site hosting.
 
+## Configuration Storage
+
+Store and retrieve configuration from `.claude/aws-docusaurus/config.json`:
+
+```json
+{
+  "infra": {
+    "SITE_NAME": "...",
+    "DOMAIN": "...",
+    "HOSTED_ZONE_ID": "...",
+    "AWS_PROFILE": "...",
+    "AWS_REGION": "...",
+    "AUTH_ENABLED": false,
+    "AUTH_USERNAME": "..."
+  }
+}
+```
+
 ## Interactive Flow
 
-Execute these steps in order:
+### Step 1: Load Saved Configuration
 
-### Step 1: Check and Prompt for Required Variables
+Read existing config:
+```bash
+cat .claude/aws-docusaurus/config.json 2>/dev/null
+```
 
-For each missing variable, use AskUserQuestion to prompt the user:
+### Step 2: Check and Prompt for Variables
 
-1. **SITE_NAME** (required)
-   - Check: `echo $SITE_NAME`
-   - If empty, ask: "What is the site/bucket name?" (e.g., "my-docs")
+For each variable, check in this order:
+1. Environment variable (`echo $VAR`)
+2. Saved config (`.claude/aws-docusaurus/config.json` → infra section)
+3. If not found, use AskUserQuestion to prompt
 
-2. **DOMAIN** (required)
-   - Check: `echo $DOMAIN`
-   - If empty, ask: "What is the custom domain?" (e.g., "docs.example.com")
+**Required:**
+- **SITE_NAME**: S3 bucket name (e.g., "my-docs")
+- **DOMAIN**: Custom domain (e.g., "docs.example.com")
+- **HOSTED_ZONE_ID**: Route53 zone ID (e.g., "Z1234567890ABC")
+  - Hint: `aws route53 list-hosted-zones`
 
-3. **HOSTED_ZONE_ID** (required)
-   - Check: `echo $HOSTED_ZONE_ID`
-   - If empty, ask: "What is the Route53 Hosted Zone ID?" (e.g., "Z1234567890ABC")
-   - Hint: Run `aws route53 list-hosted-zones` to find it
+**Optional (with defaults):**
+- **AWS_PROFILE**: Default "default"
+- **AWS_REGION**: Default "eu-west-3"
 
-4. **AWS_PROFILE** (optional)
-   - Check: `echo $AWS_PROFILE`
-   - If empty, ask: "Which AWS CLI profile to use?"
-   - Default: "default"
+### Step 3: Basic Authentication
 
-5. **AWS_REGION** (optional)
-   - Check: `echo $AWS_REGION`
-   - If empty, ask: "Which AWS region?"
-   - Default: "eu-west-3"
-
-### Step 2: Basic Authentication (Optional)
-
-Use AskUserQuestion to ask:
-
+Use AskUserQuestion:
 "Do you want to enable Basic Authentication?"
-- Options: "Yes", "No"
+- "Yes"
+- "No"
 
 If yes, prompt for:
-- **AUTH_USERNAME**: "Enter the username"
-- **AUTH_PASSWORD**: "Enter the password" (min 8 characters)
+- **AUTH_USERNAME**: Username
+- **AUTH_PASSWORD**: Password (min 8 chars) - DO NOT save password in config
 
-### Step 3: Display Summary and Confirm
-
-Show complete configuration summary:
+### Step 4: Display Summary and Confirm
 
 ```
 Infrastructure Configuration
@@ -56,50 +67,64 @@ Domain:          ${DOMAIN}
 Hosted Zone ID:  ${HOSTED_ZONE_ID}
 AWS Profile:     ${AWS_PROFILE}
 AWS Region:      ${AWS_REGION}
-Basic Auth:      ${AUTH_ENABLED} (username: ${AUTH_USERNAME})
+Basic Auth:      ${AUTH_ENABLED}
 
 Resources to create:
 • S3 Bucket: ${SITE_NAME}
-• ACM Certificate: ${DOMAIN} (us-east-1)
+• ACM Certificate: ${DOMAIN}
 • CloudFront Distribution
-• Route53 A Record: ${DOMAIN}
-• Lambda@Edge: ${SITE_NAME}-basic-auth (if auth enabled)
+• Route53 A Record
+• Lambda@Edge (if auth enabled)
 
-Proceed with infrastructure creation?
+Proceed?
 ```
 
-Use AskUserQuestion with options:
+Use AskUserQuestion:
 - "Yes, create infrastructure"
 - "No, let me change something"
 
-### Step 4: Execute Infrastructure Creation
+### Step 5: Save Configuration
 
-Only after user confirms:
+After confirmation, save to `.claude/aws-docusaurus/config.json`:
 
-1. Create S3 bucket (private, block public access)
+```bash
+mkdir -p .claude/aws-docusaurus
+```
+
+Write/update config.json with infra section (exclude AUTH_PASSWORD for security).
+
+### Step 6: Execute Infrastructure Creation
+
+1. Create S3 bucket (private)
 2. Request ACM certificate in us-east-1
 3. Wait for certificate validation
 4. Create CloudFront OAI
 5. Configure S3 bucket policy
-6. Create Lambda@Edge (if auth enabled)
+6. Create Lambda@Edge (if auth)
 7. Create CloudFront distribution
-8. Create Route53 alias record
+8. Create Route53 alias
 
-### Step 5: Show Results
+### Step 7: Save Results and Show Summary
 
-After completion, display:
-
+Update config.json with created resources:
+```json
+{
+  "infra": {
+    "...": "...",
+    "S3_BUCKET": "${SITE_NAME}",
+    "CLOUDFRONT_DISTRIBUTION_ID": "${CF_ID}"
+  }
+}
 ```
-Infrastructure created successfully!
 
-S3 Bucket:              ${SITE_NAME}
-CloudFront ID:          ${CLOUDFRONT_DISTRIBUTION_ID}
-CloudFront Domain:      ${CF_DOMAIN}
-Site URL:               https://${DOMAIN}
+Display:
+```
+Infrastructure created!
+Configuration saved to .claude/aws-docusaurus/config.json
 
-Export these for deployment:
-export S3_BUCKET="${SITE_NAME}"
-export CLOUDFRONT_DISTRIBUTION_ID="${CF_ID}"
+S3 Bucket:       ${SITE_NAME}
+CloudFront ID:   ${CF_ID}
+Site URL:        https://${DOMAIN}
 
 Next step: /aws-docusaurus:deploy
 ```
@@ -109,5 +134,5 @@ Next step: /aws-docusaurus:deploy
 ```
 Route53 → CloudFront (+ Lambda@Edge) → S3 (private)
               ↓
-         ACM Certificate (HTTPS)
+         ACM Certificate
 ```
