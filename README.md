@@ -34,20 +34,12 @@
 
 ```bash
 # 1. Initialize a new Docusaurus project
-export PROJECT_NAME="my-docs"
-export SITE_TITLE="My Documentation"
-export SITE_URL="https://docs.example.com"
 /yaccp-aws-docusaurus:init
 
 # 2. Create AWS infrastructure
-export SITE_NAME="my-docs"
-export DOMAIN="docs.example.com"
-export HOSTED_ZONE_ID="Z1234567890ABC"
 /yaccp-aws-docusaurus:infra
 
 # 3. Deploy
-export S3_BUCKET="my-docs"
-export CLOUDFRONT_DISTRIBUTION_ID="E1234567890ABC"
 /yaccp-aws-docusaurus:deploy
 ```
 
@@ -59,6 +51,7 @@ export CLOUDFRONT_DISTRIBUTION_ID="E1234567890ABC"
 | `/yaccp-aws-docusaurus:infra` | Create complete AWS infrastructure (S3, CloudFront, ACM, Route53) |
 | `/yaccp-aws-docusaurus:deploy` | Build and deploy site with optimized caching |
 | `/yaccp-aws-docusaurus:status` | Check infrastructure status and health |
+| `/yaccp-aws-docusaurus:destroy-infra` | Destroy all AWS infrastructure |
 
 ## Architecture
 
@@ -68,57 +61,10 @@ export CLOUDFRONT_DISTRIBUTION_ID="E1234567890ABC"
 
 ![Workflow](docs/images/workflow-diagram.svg)
 
-## Cache Strategy
-
-AWS Docusaurus implements an optimal caching strategy:
-
-| File Type | Cache TTL | Header | Rationale |
-|-----------|-----------|--------|-----------|
-| `*.js`, `*.css` | 1 year | `max-age=31536000, immutable` | Content-hashed filenames |
-| Images, fonts | 1 year | `max-age=31536000, immutable` | Rarely change |
-| `*.html` | 0 | `max-age=0, must-revalidate` | Always fetch latest |
-| `sw.js` | 0 | `max-age=0, must-revalidate` | Service worker updates |
-| `sitemap.xml` | 1 day | `max-age=86400` | Semi-static |
-| `*.json` | 0 | `max-age=0, must-revalidate` | Page data |
-
-## Environment Variables
-
-### Project Initialization
-
-| Variable | Required | Description | Example |
-|----------|----------|-------------|---------|
-| `PROJECT_NAME` | Yes | Project directory name | `my-docs` |
-| `SITE_TITLE` | Yes | Site title | `My Documentation` |
-| `SITE_URL` | Yes | Production URL | `https://docs.example.com` |
-| `SITE_TAGLINE` | No | Site tagline | `Amazing docs` |
-| `ORG_NAME` | No | GitHub organization | `my-org` |
-| `LOCALE` | No | Default locale | `en`, `fr` |
-
-### Infrastructure Creation
-
-| Variable | Required | Description | Example |
-|----------|----------|-------------|---------|
-| `SITE_NAME` | Yes | Resource naming prefix | `my-docs` |
-| `DOMAIN` | Yes | Custom domain | `docs.example.com` |
-| `HOSTED_ZONE_ID` | Yes | Route53 hosted zone | `Z1234567890ABC` |
-| `AWS_PROFILE` | Yes | AWS CLI profile | `default` |
-| `AWS_REGION` | Yes | Primary AWS region | `eu-west-3` |
-| `AUTH_USERNAME` | No | Basic auth username | `admin` |
-| `AUTH_PASSWORD` | No | Basic auth password | `Secret123!` |
-
-### Deployment
-
-| Variable | Required | Description | Example |
-|----------|----------|-------------|---------|
-| `S3_BUCKET` | Yes | S3 bucket name | `my-docs` |
-| `CLOUDFRONT_DISTRIBUTION_ID` | Yes | CloudFront ID | `E1234567890ABC` |
-| `BUILD_COMMAND` | Yes | Build command | `npm run build` |
-| `BUILD_DIR` | Yes | Build output directory | `build` |
-
 ## Supported Frameworks
 
-| Framework | BUILD_COMMAND | BUILD_DIR |
-|-----------|---------------|-----------|
+| Framework | Build Command | Output Directory |
+|-----------|---------------|------------------|
 | Docusaurus | `npm run build` | `build` |
 | Next.js (static) | `npm run build && npm run export` | `out` |
 | Vite / Vue / React | `npm run build` | `dist` |
@@ -199,6 +145,57 @@ jobs:
       - run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CF_ID }} --paths "/*"
 ```
 
+---
+
+## Advanced Usage
+
+### Cache Strategy
+
+| File Type | Cache TTL | Header | Rationale |
+|-----------|-----------|--------|-----------|
+| `*.js`, `*.css` | 1 year | `max-age=31536000, immutable` | Content-hashed filenames |
+| Images, fonts | 1 year | `max-age=31536000, immutable` | Rarely change |
+| `*.html` | 0 | `max-age=0, must-revalidate` | Always fetch latest |
+| `sw.js` | 0 | `max-age=0, must-revalidate` | Service worker updates |
+| `sitemap.xml` | 1 day | `max-age=86400` | Semi-static |
+| `*.json` | 0 | `max-age=0, must-revalidate` | Page data |
+
+### Environment Variables
+
+#### Project Initialization
+
+| Variable | Required | Description | Example |
+|----------|----------|-------------|---------|
+| `PROJECT_NAME` | Yes | Project directory name | `my-docs` |
+| `SITE_TITLE` | Yes | Site title | `My Documentation` |
+| `SITE_URL` | Yes | Production URL | `https://docs.example.com` |
+| `SITE_TAGLINE` | No | Site tagline | `Amazing docs` |
+| `ORG_NAME` | No | GitHub organization | `my-org` |
+| `LOCALE` | No | Default locale | `en`, `fr` |
+
+#### Infrastructure Creation
+
+| Variable | Required | Description | Example |
+|----------|----------|-------------|---------|
+| `SITE_NAME` | Yes | Resource naming prefix | `my-docs` |
+| `DOMAIN` | Yes | Custom domain | `docs.example.com` |
+| `HOSTED_ZONE_ID` | Yes | Route53 hosted zone | `Z1234567890ABC` |
+| `AWS_PROFILE` | No | AWS CLI profile | `default` |
+| `AWS_REGION` | No | Primary AWS region | `eu-west-3` |
+| `AUTH_USERNAME` | No | Basic auth username | `admin` |
+| `AUTH_PASSWORD` | No | Basic auth password | `Secret123!` |
+
+#### Deployment
+
+| Variable | Required | Description | Example |
+|----------|----------|-------------|---------|
+| `S3_BUCKET` | Yes | S3 bucket name | `my-docs` |
+| `CLOUDFRONT_DISTRIBUTION_ID` | Yes | CloudFront ID | `E1234567890ABC` |
+| `BUILD_COMMAND` | No | Build command | `npm run build` |
+| `BUILD_DIR` | No | Build output directory | `build` |
+
+---
+
 ## Contributing
 
 Contributions are welcome! Please read [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines.
@@ -210,7 +207,3 @@ Apache License 2.0 - see [LICENSE](LICENSE) for details.
 ## Author
 
 A [Yaccp](https://github.com/yaccp) plugin for Claude Code.
-
----
-
-**AWS Docusaurus** - Deploy your static sites to the cloud.
