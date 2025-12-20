@@ -53,6 +53,159 @@
 | `/yaccp-aws-docusaurus:status` | Check infrastructure status and health |
 | `/yaccp-aws-docusaurus:destroy-infra` | Destroy all AWS infrastructure |
 
+## Interactive Prompts
+
+Each command guides you through configuration with interactive prompts:
+
+<details>
+<summary><strong>/yaccp-aws-docusaurus:init</strong></summary>
+
+```
+? Project name: my-docs
+? Site title: My Documentation
+? Site URL: https://docs.example.com
+```
+
+```
+Configuration Summary
+=====================
+Project Name:  my-docs
+Site Title:    My Documentation
+Site URL:      https://docs.example.com
+Tagline:       Documentation
+Locale:        en
+
+Proceed with initialization?
+● Yes, create the project
+○ No, let me change something
+```
+</details>
+
+<details>
+<summary><strong>/yaccp-aws-docusaurus:infra</strong></summary>
+
+```
+? Site name (S3 bucket): my-docs
+? Domain: docs.example.com
+? Route53 Hosted Zone ID: Z1234567890ABC
+```
+
+```
+? Do you want to enable Basic Authentication?
+○ Yes
+● No
+```
+
+```
+Infrastructure Configuration
+============================
+Site Name:       my-docs
+Domain:          docs.example.com
+Hosted Zone ID:  Z1234567890ABC
+AWS Profile:     default
+Basic Auth:      No
+
+Resources to create:
+• S3 Bucket: my-docs
+• ACM Certificate: docs.example.com
+• CloudFront Distribution
+• Route53 A Record
+
+Proceed?
+● Yes, create infrastructure
+○ No, let me change something
+```
+</details>
+
+<details>
+<summary><strong>/yaccp-aws-docusaurus:deploy</strong></summary>
+
+```
+Detected framework: Docusaurus
+```
+
+```
+Deployment Configuration
+========================
+Framework:       Docusaurus
+Build Command:   npm run build
+Build Directory: build
+S3 Bucket:       my-docs
+CloudFront ID:   E1234567890ABC
+
+Cache Strategy:
+• JS/CSS/Images: 1 year (immutable)
+• HTML/JSON:     No cache
+
+Proceed?
+● Yes, build and deploy
+○ No, let me change something
+```
+</details>
+
+<details>
+<summary><strong>/yaccp-aws-docusaurus:status</strong></summary>
+
+```
+AWS Docusaurus Status
+=====================
+
+CloudFront: E1234567890ABC
+├── Status:  Deployed
+├── Enabled: true
+└── Domain:  d123456.cloudfront.net
+
+S3 Bucket: my-docs
+├── Status:  Accessible
+├── Objects: 142
+└── Size:    12.5 MB
+
+Certificate:
+├── Status:  ISSUED
+└── Expires: 2025-12-20
+
+Site Health: https://docs.example.com
+├── Status:  200 OK
+└── TTFB:    0.045s
+```
+
+```
+? What would you like to do next?
+○ Invalidate CloudFront cache
+○ Redeploy site
+● Nothing, done
+```
+</details>
+
+<details>
+<summary><strong>/yaccp-aws-docusaurus:destroy-infra</strong></summary>
+
+```
+⚠️  INFRASTRUCTURE DESTRUCTION
+==============================
+
+This will PERMANENTLY DELETE:
+
+• CloudFront: E1234567890ABC
+• S3 Bucket: my-docs (all objects!)
+• Route53: docs.example.com
+• ACM Certificate
+• Origin Access Identity
+
+⚠️  THIS ACTION CANNOT BE UNDONE!
+```
+
+```
+? Are you sure you want to destroy all infrastructure?
+● Yes, destroy everything
+○ No, cancel
+```
+
+```
+? Type 'destroy' to confirm: destroy
+```
+</details>
+
 ## Architecture
 
 ![Architecture](docs/images/architecture-diagram.svg)
