@@ -5,16 +5,9 @@ All notable changes to AWS Docusaurus will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.8] - 2024-12-20
+## [1.1.9] - 2024-12-21
 
 ### Added
-
-- **New command** `/yaccp-aws-docusaurus:destroy-infra`
-  - Destroy all AWS infrastructure created by `/yaccp-aws-docusaurus:infra`
-  - Ordered deletion respecting AWS dependencies
-  - Double confirmation for safety
-  - Handles Route53, CloudFront, S3, ACM, Lambda@Edge, and OAI cleanup
-  - Graceful handling of Lambda@Edge replica propagation delays
 
 - **New command** `/yaccp-aws-docusaurus:issues`
   - Interactive GitHub issue creation for the plugin
@@ -26,6 +19,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added Interactive Prompts section to README
   - Added SVG diagrams for architecture, workflow, and security layers
   - Reorganized README with Advanced Usage section
+
+---
+
+## [1.1.8] - 2024-12-20
+
+### Added
+
+- **New command** `/yaccp-aws-docusaurus:destroy-infra`
+  - Destroy all AWS infrastructure created by `/yaccp-aws-docusaurus:infra`
+  - Ordered deletion respecting AWS dependencies
+  - Double confirmation for safety
+  - Handles Route53, CloudFront, S3, ACM, Lambda@Edge, and OAI cleanup
+  - Graceful handling of Lambda@Edge replica propagation delays
 
 ---
 
@@ -148,7 +154,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Highlights |
 |---------|------|------------|
-| 1.1.8 | 2024-12-20 | New `/destroy-infra` and `/issues` commands, SVG diagrams |
+| 1.1.9 | 2024-12-21 | New `/issues` command, Interactive Prompts docs, SVG diagrams |
+| 1.1.8 | 2024-12-20 | New `/destroy-infra` command |
 | 1.1.5 | 2024-12-20 | **Breaking:** Plugin renamed to `yaccp-aws-docusaurus` |
 | 1.1.0 | 2024-12-20 | Yaccp marketplace, maintenance agents, Mermaid diagrams |
 | 1.0.0 | 2024-12-19 | Initial release |
