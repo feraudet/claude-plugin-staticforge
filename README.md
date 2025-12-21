@@ -52,6 +52,7 @@
 | `/yaccp-aws-docusaurus:deploy` | Build and deploy site with optimized caching |
 | `/yaccp-aws-docusaurus:status` | Check infrastructure status and health |
 | `/yaccp-aws-docusaurus:destroy-infra` | Destroy all AWS infrastructure |
+| `/yaccp-aws-docusaurus:issues` | Create a GitHub issue for this plugin |
 
 ## Interactive Prompts
 
@@ -203,6 +204,59 @@ This will PERMANENTLY DELETE:
 
 ```
 ? Type 'destroy' to confirm: destroy
+```
+</details>
+
+<details>
+<summary><strong>/yaccp-aws-docusaurus:issues</strong></summary>
+
+```
+? What type of issue would you like to create?
+○ Bug Report
+○ Feature Request
+○ Question
+● Documentation
+```
+
+For Bug Report:
+```
+? Describe the bug: CloudFront creation fails
+? Expected behavior: Should create successfully
+? Which command? /yaccp-aws-docusaurus:infra
+? Error message: AccessDenied...
+```
+
+```
+Issue Preview
+=============
+
+Title: [Bug] CloudFront creation fails
+Labels: bug
+
+## Description
+CloudFront creation fails with AccessDenied error.
+
+## Expected Behavior
+Should create successfully.
+
+## Environment
+- Command: /yaccp-aws-docusaurus:infra
+- Plugin Version: 1.1.8
+
+---
+
+? Create this issue?
+● Yes, create issue on GitHub
+○ Edit title
+○ Edit description
+○ Cancel
+```
+
+```
+Issue created successfully!
+
+Issue #42: [Bug] CloudFront creation fails
+URL: https://github.com/yaccp/claude-plugin-aws-docusaurus/issues/42
 ```
 </details>
 

@@ -16,6 +16,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Handles Route53, CloudFront, S3, ACM, Lambda@Edge, and OAI cleanup
   - Graceful handling of Lambda@Edge replica propagation delays
 
+- **New command** `/yaccp-aws-docusaurus:issues`
+  - Interactive GitHub issue creation for the plugin
+  - Supports Bug Report, Feature Request, Question, and Documentation types
+  - Guided prompts with issue preview before submission
+  - Uses `gh` CLI for issue creation
+
+- **Documentation improvements**
+  - Added Interactive Prompts section to README
+  - Added SVG diagrams for architecture, workflow, and security layers
+  - Reorganized README with Advanced Usage section
+
 ---
 
 ## [1.1.5] - 2024-12-20
@@ -137,7 +148,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Highlights |
 |---------|------|------------|
-| 1.1.8 | 2024-12-20 | New `/destroy-infra` command |
+| 1.1.8 | 2024-12-20 | New `/destroy-infra` and `/issues` commands, SVG diagrams |
 | 1.1.5 | 2024-12-20 | **Breaking:** Plugin renamed to `yaccp-aws-docusaurus` |
 | 1.1.0 | 2024-12-20 | Yaccp marketplace, maintenance agents, Mermaid diagrams |
 | 1.0.0 | 2024-12-19 | Initial release |
