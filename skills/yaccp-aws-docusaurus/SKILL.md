@@ -12,6 +12,21 @@ AWS Docusaurus automates the entire process of deploying static sites (Docusauru
 - **Route53** for DNS
 - **Lambda@Edge** for optional Basic Auth
 
+## Environments
+
+This plugin supports multiple AWS environments:
+
+- **dev**: Development environment (can share AWS account with staging)
+- **staging**: Staging/QA environment
+- **prod**: Production environment (separate AWS account recommended)
+
+Each environment can have its own:
+- AWS profile and account
+- S3 bucket and CloudFront distribution
+- Domain and Route53 hosted zone
+
+Configure environments via `/yaccp-aws-docusaurus:env` or environment variables.
+
 ## Quick Start
 
 ### 1. Initialize Project
@@ -55,10 +70,13 @@ Then ask: "Deploy my site with AWS Docusaurus"
 
 | Command | Description |
 |---------|-------------|
-| `/aws-docusaurus init` | Initialize Docusaurus project |
-| `/aws-docusaurus infra` | Create AWS infrastructure |
-| `/aws-docusaurus deploy` | Build and deploy site |
-| `/aws-docusaurus status` | Check infrastructure status |
+| `/yaccp-aws-docusaurus:env` | Manage AWS environments |
+| `/yaccp-aws-docusaurus:init` | Initialize Docusaurus project |
+| `/yaccp-aws-docusaurus:infra` | Create AWS infrastructure |
+| `/yaccp-aws-docusaurus:deploy` | Build and deploy site |
+| `/yaccp-aws-docusaurus:status` | Check infrastructure status |
+| `/yaccp-aws-docusaurus:destroy-infra` | Destroy AWS infrastructure |
+| `/yaccp-aws-docusaurus:doctor` | Diagnose issues |
 
 ## Architecture
 

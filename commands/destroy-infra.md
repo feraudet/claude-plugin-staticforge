@@ -1,6 +1,6 @@
 # AWS Docusaurus: Destroy Infrastructure
 
-Destroy all AWS infrastructure created by `/yaccp-aws-docusaurus:infra`.
+Destroy all AWS infrastructure created by `/yaccp-aws-docusaurus:infra` for the selected environment.
 
 ## Configuration Storage
 
@@ -8,20 +8,44 @@ Read configuration from `.claude/yaccp/aws-docusaurus/config.json`:
 
 ```json
 {
-  "infra": {
-    "SITE_NAME": "...",
-    "DOMAIN": "...",
-    "S3_BUCKET": "...",
-    "CLOUDFRONT_DISTRIBUTION_ID": "...",
-    "HOSTED_ZONE_ID": "...",
-    "AWS_PROFILE": "...",
-    "AWS_REGION": "...",
-    "AUTH_ENABLED": false
-  }
+  "environments": {
+    "dev": {
+      "AWS_PROFILE": "company-dev",
+      "AWS_REGION": "eu-west-1",
+      "SITE_NAME": "mysite-dev",
+      "DOMAIN": "dev.example.com",
+      "S3_BUCKET": "mysite-dev",
+      "CLOUDFRONT_DISTRIBUTION_ID": "E1DEV...",
+      "HOSTED_ZONE_ID": "Z1DEV...",
+      "AUTH_ENABLED": false
+    },
+    "staging": { ... },
+    "prod": { ... }
+  },
+  "currentEnvironment": "dev"
 }
 ```
 
 ## Interactive Flow
+
+### Step 0: Resolve Environment
+
+1. Check `$PLUGIN_ENV` for environment override
+2. Load config and get `currentEnvironment`
+3. Use AskUserQuestion:
+   "Which environment do you want to DESTROY?"
+   - "dev" (Development)
+   - "staging" (Staging)
+   - "prod" (Production) - Shows extra warning
+
+4. If "prod" selected, show additional warning:
+   ```
+   ⚠️  WARNING: You are about to destroy PRODUCTION infrastructure!
+   This action is irreversible and will cause downtime.
+   ```
+
+5. Load variables from `environments[selectedEnv]`
+6. Display: "Preparing to destroy: ${ENV_NAME} (${AWS_ACCOUNT_ID})"
 
 ### Step 1: Load Saved Configuration
 

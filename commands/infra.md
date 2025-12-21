@@ -1,6 +1,6 @@
 # AWS Docusaurus: Create AWS Infrastructure
 
-Create complete AWS infrastructure for static site hosting.
+Create complete AWS infrastructure for static site hosting in the selected environment.
 
 ## Configuration Storage
 
@@ -8,19 +8,44 @@ Store and retrieve configuration from `.claude/yaccp/aws-docusaurus/config.json`
 
 ```json
 {
-  "infra": {
-    "SITE_NAME": "...",
-    "DOMAIN": "...",
-    "HOSTED_ZONE_ID": "...",
-    "AWS_PROFILE": "...",
-    "AWS_REGION": "...",
-    "AUTH_ENABLED": false,
-    "AUTH_USERNAME": "..."
+  "environments": {
+    "dev": {
+      "AWS_PROFILE": "company-dev",
+      "AWS_REGION": "eu-west-1",
+      "AWS_ACCOUNT_ID": "111111111111",
+      "SITE_NAME": "mysite-dev",
+      "DOMAIN": "dev.example.com",
+      "HOSTED_ZONE_ID": "Z1DEV...",
+      "S3_BUCKET": "mysite-dev",
+      "CLOUDFRONT_DISTRIBUTION_ID": "E1DEV...",
+      "AUTH_ENABLED": false
+    },
+    "staging": { ... },
+    "prod": { ... }
+  },
+  "currentEnvironment": "dev",
+  "defaults": {
+    "AWS_REGION": "eu-west-1"
   }
 }
 ```
 
 ## Interactive Flow
+
+### Step 0: Resolve Environment
+
+1. Check `$PLUGIN_ENV` for environment override
+2. Load config and get `currentEnvironment`
+3. If no current environment set, use AskUserQuestion:
+   "Which environment do you want to create infrastructure for?"
+   - "dev" (Development)
+   - "staging" (Staging)
+   - "prod" (Production)
+   - "new" (Create new environment)
+
+4. If "new", prompt for environment name
+5. Load variables from `environments[selectedEnv]` (if exists)
+6. Display: "Creating infrastructure for: ${ENV_NAME}"
 
 ### Step 1: Load Saved Configuration
 

@@ -5,6 +5,33 @@ All notable changes to AWS Docusaurus will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.10] - 2024-12-21
+
+### Added
+
+- **New command** `/yaccp-aws-docusaurus:doctor`
+  - Diagnose issues with plugin configuration and AWS setup
+  - Check prerequisites (CLI tools, AWS credentials)
+  - Verify AWS resources (S3, CloudFront, ACM, Route53)
+  - Test IAM permissions
+  - Detect common issues with suggested fixes
+  - Offer to create GitHub issue if problem persists
+
+- **New command** `/yaccp-aws-docusaurus:env`
+  - Manage multiple AWS environments (dev/staging/prod)
+  - Switch between environments easily
+  - Override temporarily with `PLUGIN_ENV` variable
+
+- **New maintenance agents**
+  - `diagram-updater` - Update Mermaid diagrams and regenerate SVGs
+  - `preview-generator` - Generate GIF previews of AskUserQuestion flows
+
+### Changed
+
+- Updated author information in plugin metadata
+
+---
+
 ## [1.1.9] - 2024-12-21
 
 ### Added
@@ -154,6 +181,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 1.1.10 | 2024-12-21 | New `/doctor` and `/env` commands, maintenance agents |
 | 1.1.9 | 2024-12-21 | New `/issues` command, Interactive Prompts docs, SVG diagrams |
 | 1.1.8 | 2024-12-20 | New `/destroy-infra` command |
 | 1.1.5 | 2024-12-20 | **Breaking:** Plugin renamed to `yaccp-aws-docusaurus` |

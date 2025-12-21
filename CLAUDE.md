@@ -9,10 +9,28 @@ AWS Docusaurus automates static site deployment to AWS. It creates and manages:
 - Route53 DNS alias records
 - Lambda@Edge Basic Auth (optional)
 
+## Multi-Environment Support
+
+This plugin supports multiple AWS environments/accounts:
+
+```
+.claude/yaccp/aws-docusaurus/config.json
+├── environments/
+│   ├── dev      → AWS Account 111111111111
+│   ├── staging  → AWS Account 222222222222
+│   └── prod     → AWS Account 333333333333
+└── currentEnvironment: "dev"
+```
+
+Use `/yaccp-aws-docusaurus:env` to manage environments.
+
+Override temporarily with: `export PLUGIN_ENV=staging`
+
 ## Commands
 
 | Command | Purpose |
 |---------|---------|
+| `/yaccp-aws-docusaurus:env` | Manage AWS environments (dev/staging/prod) |
 | `/yaccp-aws-docusaurus:init` | Create new Docusaurus project with AWS-ready config |
 | `/yaccp-aws-docusaurus:infra` | Provision complete AWS infrastructure |
 | `/yaccp-aws-docusaurus:deploy` | Build and deploy to S3 + invalidate CloudFront |
@@ -29,6 +47,7 @@ AWS Docusaurus automates static site deployment to AWS. It creates and manages:
 └── marketplace.json     # Marketplace listing
 
 commands/
+├── env.md               # /yaccp-aws-docusaurus:env
 ├── init.md              # /yaccp-aws-docusaurus:init
 ├── infra.md             # /yaccp-aws-docusaurus:infra
 ├── deploy.md            # /yaccp-aws-docusaurus:deploy
@@ -36,6 +55,10 @@ commands/
 ├── destroy-infra.md     # /yaccp-aws-docusaurus:destroy-infra
 ├── doctor.md            # /yaccp-aws-docusaurus:doctor
 └── issues.md            # /yaccp-aws-docusaurus:issues
+
+assets/
+├── diagrams/*.svg       # Architecture diagrams
+└── previews/*.gif       # Interaction previews
 
 templates/
 ├── cloudfront-distribution.json
@@ -50,13 +73,22 @@ Commands persist configuration to: `.claude/yaccp/aws-docusaurus/config.json`
 
 ```json
 {
-  "init": {
-    "PROJECT_NAME": "...",
-    "SITE_URL": "..."
+  "environments": {
+    "dev": {
+      "AWS_PROFILE": "company-dev",
+      "AWS_ACCOUNT_ID": "111111111111",
+      "S3_BUCKET": "mysite-dev",
+      "CLOUDFRONT_DISTRIBUTION_ID": "E1DEV...",
+      "DOMAIN": "dev.example.com"
+    },
+    "staging": { ... },
+    "prod": { ... }
   },
-  "infra": {
-    "S3_BUCKET": "...",
-    "CLOUDFRONT_DISTRIBUTION_ID": "..."
+  "currentEnvironment": "dev",
+  "defaults": {
+    "AWS_REGION": "eu-west-1",
+    "BUILD_COMMAND": "npm run build",
+    "BUILD_DIR": "build"
   }
 }
 ```
@@ -82,6 +114,8 @@ Located in `.claude/agents/`:
 - `release-manager` - Manage releases and versioning
 - `security-reviewer` - Security audits
 - `changelog-updater` - Maintain changelog
+- `preview-generator` - Generate GIF previews of AskUserQuestion flows
+- `diagram-updater` - Update Mermaid diagrams and regenerate SVGs
 
 ## Security Model
 

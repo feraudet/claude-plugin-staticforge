@@ -47,6 +47,7 @@
 
 | Command | Description |
 |---------|-------------|
+| `/yaccp-aws-docusaurus:env` | Manage AWS environments (dev/staging/prod) |
 | `/yaccp-aws-docusaurus:init` | Initialize a new Docusaurus project pre-configured for AWS |
 | `/yaccp-aws-docusaurus:infra` | Create complete AWS infrastructure (S3, CloudFront, ACM, Route53) |
 | `/yaccp-aws-docusaurus:deploy` | Build and deploy site with optimized caching |
@@ -320,11 +321,35 @@ URL: https://github.com/yaccp/claude-plugin-aws-docusaurus/issues/42
 
 ## Architecture
 
-![Architecture](docs/images/architecture-diagram.svg)
+![Architecture](assets/diagrams/architecture.svg)
 
 ## Workflow
 
-![Workflow](docs/images/workflow-diagram.svg)
+![Workflow](assets/diagrams/workflow.svg)
+
+## Multi-Environment Support
+
+AWS Docusaurus supports multiple AWS environments for professional deployment workflows:
+
+```
+.claude/yaccp/aws-docusaurus/config.json
+├── environments/
+│   ├── dev      → Development (dev.example.com)
+│   ├── staging  → Staging (staging.example.com)
+│   └── prod     → Production (example.com)
+└── currentEnvironment: "dev"
+```
+
+Each environment can have:
+- Separate AWS accounts/profiles
+- Different domains and hosted zones
+- Independent S3 buckets and CloudFront distributions
+
+Use `/yaccp-aws-docusaurus:env` to manage environments, or override with:
+```bash
+export PLUGIN_ENV=staging
+/yaccp-aws-docusaurus:deploy
+```
 
 ## Supported Frameworks
 
@@ -471,4 +496,4 @@ Apache License 2.0 - see [LICENSE](LICENSE) for details.
 
 ## Author
 
-A [Yaccp](https://github.com/yaccp) plugin for Claude Code.
+Created by [Cyril Feraudet](https://github.com/feraudet) - A [Yaccp](https://github.com/yaccp) plugin for Claude Code.

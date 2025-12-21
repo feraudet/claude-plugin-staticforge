@@ -1,6 +1,6 @@
 # AWS Docusaurus: Deploy Site
 
-Deploy static site to AWS S3 + CloudFront.
+Deploy static site to AWS S3 + CloudFront for the selected environment.
 
 ## Configuration Storage
 
@@ -8,19 +8,40 @@ Store and retrieve configuration from `.claude/yaccp/aws-docusaurus/config.json`
 
 ```json
 {
-  "deploy": {
-    "S3_BUCKET": "...",
-    "CLOUDFRONT_DISTRIBUTION_ID": "...",
-    "BUILD_COMMAND": "...",
-    "BUILD_DIR": "...",
-    "AWS_PROFILE": "...",
-    "AWS_REGION": "...",
-    "FRAMEWORK": "..."
+  "environments": {
+    "dev": {
+      "AWS_PROFILE": "company-dev",
+      "AWS_REGION": "eu-west-1",
+      "S3_BUCKET": "mysite-dev",
+      "CLOUDFRONT_DISTRIBUTION_ID": "E1DEV...",
+      "DOMAIN": "dev.example.com"
+    },
+    "staging": { ... },
+    "prod": { ... }
+  },
+  "currentEnvironment": "dev",
+  "defaults": {
+    "AWS_REGION": "eu-west-1",
+    "BUILD_COMMAND": "npm run build",
+    "BUILD_DIR": "build"
   }
 }
 ```
 
 ## Interactive Flow
+
+### Step 0: Resolve Environment
+
+1. Check `$PLUGIN_ENV` for environment override
+2. Load config and get `currentEnvironment`
+3. If no current environment set, use AskUserQuestion:
+   "Which environment do you want to deploy to?"
+   - "dev" (Development)
+   - "staging" (Staging)
+   - "prod" (Production)
+
+4. Load variables from `environments[selectedEnv]`
+5. Display: "Using environment: ${ENV_NAME} (${AWS_ACCOUNT_ID})"
 
 ### Step 1: Load Saved Configuration
 

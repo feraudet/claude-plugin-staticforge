@@ -1,6 +1,6 @@
 # AWS Docusaurus: Check Status
 
-Check AWS infrastructure and deployment status.
+Check AWS infrastructure and deployment status for the selected environment.
 
 ## Configuration Storage
 
@@ -8,19 +8,36 @@ Read configuration from `.claude/yaccp/aws-docusaurus/config.json`:
 
 ```json
 {
-  "infra": {
-    "CLOUDFRONT_DISTRIBUTION_ID": "...",
-    "S3_BUCKET": "...",
-    "DOMAIN": "..."
+  "environments": {
+    "dev": {
+      "AWS_PROFILE": "company-dev",
+      "AWS_REGION": "eu-west-1",
+      "S3_BUCKET": "mysite-dev",
+      "CLOUDFRONT_DISTRIBUTION_ID": "E1DEV...",
+      "DOMAIN": "dev.example.com"
+    },
+    "staging": { ... },
+    "prod": { ... }
   },
-  "deploy": {
-    "AWS_PROFILE": "...",
-    "AWS_REGION": "..."
-  }
+  "currentEnvironment": "dev"
 }
 ```
 
 ## Interactive Flow
+
+### Step 0: Resolve Environment
+
+1. Check `$PLUGIN_ENV` for environment override
+2. Load config and get `currentEnvironment`
+3. If no current environment set, use AskUserQuestion:
+   "Which environment do you want to check?"
+   - "dev" (Development)
+   - "staging" (Staging)
+   - "prod" (Production)
+   - "all" (Check all environments)
+
+4. Load variables from `environments[selectedEnv]`
+5. Display: "Checking status for: ${ENV_NAME}"
 
 ### Step 1: Load Saved Configuration
 
