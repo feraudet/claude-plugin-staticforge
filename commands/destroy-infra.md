@@ -1,3 +1,8 @@
+---
+name: destroy-infra
+description: Destroy all AWS infrastructure created by infra command
+---
+
 # AWS Docusaurus: Destroy Infrastructure
 
 Destroy all AWS infrastructure created by `/yaccp-aws-docusaurus:infra` for the selected environment.

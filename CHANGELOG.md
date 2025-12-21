@@ -5,6 +5,16 @@ All notable changes to AWS Docusaurus will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.11] - 2024-12-21
+
+### Fixed
+
+- **Commands not appearing after plugin installation**
+  - Added YAML frontmatter to all command files
+  - Commands now properly register with Claude Code
+
+---
+
 ## [1.1.10] - 2024-12-21
 
 ### Added
@@ -181,6 +191,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 1.1.11 | 2024-12-21 | Fix: Commands now appear after plugin installation |
 | 1.1.10 | 2024-12-21 | New `/doctor` and `/env` commands, maintenance agents |
 | 1.1.9 | 2024-12-21 | New `/issues` command, Interactive Prompts docs, SVG diagrams |
 | 1.1.8 | 2024-12-20 | New `/destroy-infra` command |

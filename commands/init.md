@@ -1,3 +1,8 @@
+---
+name: init
+description: Initialize a new Docusaurus project pre-configured for AWS deployment
+---
+
 # AWS Docusaurus: Initialize Project
 
 Initialize a new Docusaurus project pre-configured for AWS deployment.

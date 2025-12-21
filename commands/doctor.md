@@ -1,3 +1,8 @@
+---
+name: doctor
+description: Diagnose issues with plugin configuration and AWS setup
+---
+
 # AWS Docusaurus: Doctor
 
 Diagnose issues with the plugin configuration and AWS setup.

@@ -1,3 +1,8 @@
+---
+name: infra
+description: Create complete AWS infrastructure (S3, CloudFront, ACM, Route53)
+---
+
 # AWS Docusaurus: Create AWS Infrastructure
 
 Create complete AWS infrastructure for static site hosting in the selected environment.

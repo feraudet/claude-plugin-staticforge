@@ -1,3 +1,8 @@
+---
+name: env
+description: Manage AWS environments (dev/staging/prod)
+---
+
 # AWS Docusaurus: Manage Environments
 
 Manage AWS environments and profiles for multi-account deployments.

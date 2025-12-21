@@ -1,3 +1,8 @@
+---
+name: issues
+description: Create a GitHub issue for this plugin
+---
+
 # AWS Docusaurus: Create GitHub Issue
 
 Guide the user through creating a GitHub issue for this plugin.

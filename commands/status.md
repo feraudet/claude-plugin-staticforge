@@ -1,3 +1,8 @@
+---
+name: status
+description: Check AWS infrastructure status and health
+---
+
 # AWS Docusaurus: Check Status
 
 Check AWS infrastructure and deployment status for the selected environment.

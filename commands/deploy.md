@@ -1,3 +1,8 @@
+---
+name: deploy
+description: Build and deploy site to S3 with CloudFront cache invalidation
+---
+
 # AWS Docusaurus: Deploy Site
 
 Deploy static site to AWS S3 + CloudFront for the selected environment.
