@@ -30,6 +30,7 @@ Override temporarily with: `export PLUGIN_ENV=staging`
 
 | Command | Purpose |
 |---------|---------|
+| `/yaccp-aws-docusaurus:yaccp-aws-docusaurus-action` | **Main dashboard** - Start here! Interactive command center |
 | `/yaccp-aws-docusaurus:yaccp-aws-docusaurus-env` | Manage AWS environments (dev/staging/prod) |
 | `/yaccp-aws-docusaurus:yaccp-aws-docusaurus-init` | Create new Docusaurus project with AWS-ready config |
 | `/yaccp-aws-docusaurus:yaccp-aws-docusaurus-infra` | Provision complete AWS infrastructure |
@@ -50,6 +51,7 @@ Override temporarily with: `export PLUGIN_ENV=staging`
 └── marketplace.json     # Marketplace listing
 
 commands/
+├── action.md                 # /yaccp-aws-docusaurus:yaccp-aws-docusaurus-action (Main dashboard)
 ├── env.md                    # /yaccp-aws-docusaurus:yaccp-aws-docusaurus-env
 ├── init.md                   # /yaccp-aws-docusaurus:yaccp-aws-docusaurus-init
 ├── infra.md                  # /yaccp-aws-docusaurus:yaccp-aws-docusaurus-infra

@@ -33,6 +33,10 @@
 ### Usage
 
 ```bash
+# Start with the Action Center (recommended)
+/yaccp-aws-docusaurus:yaccp-aws-docusaurus-action
+
+# Or use individual commands:
 # 1. Initialize a new Docusaurus project
 /yaccp-aws-docusaurus:yaccp-aws-docusaurus-init
 
@@ -47,6 +51,7 @@
 
 | Command | Description |
 |---------|-------------|
+| `/yaccp-aws-docusaurus:yaccp-aws-docusaurus-action` | **Main dashboard** - Interactive command center (start here!) |
 | `/yaccp-aws-docusaurus:yaccp-aws-docusaurus-env` | Manage AWS environments (dev/staging/prod) |
 | `/yaccp-aws-docusaurus:yaccp-aws-docusaurus-init` | Initialize a new Docusaurus project pre-configured for AWS |
 | `/yaccp-aws-docusaurus:yaccp-aws-docusaurus-infra` | Create complete AWS infrastructure (S3, CloudFront, ACM, Route53) |
@@ -62,6 +67,81 @@
 ## Interactive Prompts
 
 Each command guides you through configuration with interactive prompts:
+
+<details>
+<summary><strong>/yaccp-aws-docusaurus:yaccp-aws-docusaurus-action</strong> (Main Dashboard)</summary>
+
+```
+╔══════════════════════════════════════════════════════════════╗
+║           AWS Docusaurus - Action Center                     ║
+╠══════════════════════════════════════════════════════════════╣
+║  Deploy static sites to AWS with S3, CloudFront & SSL        ║
+╚══════════════════════════════════════════════════════════════╝
+
+Current Status
+══════════════
+Environment:    dev (Development)
+AWS Profile:    company-dev
+AWS Region:     eu-west-1
+AWS Account:    111111111111
+
+Infrastructure:
+├── S3 Bucket:     my-docs-dev
+├── CloudFront:    E1234567890ABC
+├── Domain:        dev.example.com
+└── Certificate:   ISSUED
+
+Local Server:
+└── Status:        Not running
+```
+
+```
+? What would you like to do?
+● Deploy site
+○ Check status
+○ Start local server
+○ Manage environments
+○ Create AWS infrastructure
+○ Run diagnostics
+○ View current configuration
+```
+
+First-time setup wizard:
+```
+Welcome! Let's set up your AWS Docusaurus deployment.
+? What would you like to do first?
+○ Create a new Docusaurus project
+○ Configure AWS environment
+● I have an existing project to deploy
+```
+
+```
+? What framework is your project using?
+● Docusaurus
+○ Next.js (Static Export)
+○ Vite / Vue / React
+○ Other
+```
+
+```
+? AWS Profile name? company-dev
+? AWS Region? eu-west-1
+? Site domain? docs.example.com
+? Environment name? dev
+```
+
+```
+Configuration saved!
+
+Recommended: Create AWS infrastructure
+Your environment is configured but AWS resources haven't been created yet.
+
+? What would you like to do next?
+● Create AWS infrastructure
+○ Back to Action Center
+○ Exit
+```
+</details>
 
 <details>
 <summary><strong>/yaccp-aws-docusaurus:yaccp-aws-docusaurus-init</strong></summary>
